@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 20px;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        input, button, select {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        input {
+            width: 70%;
+            border: 1px solid #ccc;
+        }
+        
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #218838;
+        }
+        
+        select {
+            background-color: #ddd;
+        }
+        
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        li {
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 5px;
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            border-radius: 5px;
+            align-items: center;
+        }
+        
+        .task-text {
+            flex: 1;
+            cursor: pointer;
+        }
+        
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+        
+        .edit-btn {
+            background-color: #ffc107;
+        }
+        
+        .edit-btn:hover {
+            background-color: #e0a800;
+        }
+        
+        .delete-btn {
+            background-color: #dc3545;
+        }
+        
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>To-Do List</h2>
+        <input type="text" id="taskInput" placeholder="Add a new task">
+        <button onclick="addTask()">Add</button>
+        <select id="filter" onchange="filterTasks()">
+            <option value="all">All</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
+        </select>
+        <button onclick="showAll()">All</button>
+        <button onclick="showCompleted()">Completed</button>
+        <button onclick="showPending()">Pending</button>
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        function renderTasks() {
+            const filter = document.getElementById('filter').value;
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            tasks.filter(task => filter === 'all' || (filter === 'completed' && task.completed) || (filter === 'pending' && !task.completed))
+                 .forEach((task, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span class="task-text ${task.completed ? 'completed' : ''}" onclick="toggleTask(${index})">${task.text}</span>
+                                    <button class="edit-btn" onclick="editTask(${index})">Edit</button>
+                                    <button class="delete-btn" onclick="deleteTask(${index})">Delete</button>
+                                    <button onclick="markCompleted(${index})">Mark Completed</button>`;
+                    taskList.appendChild(li);
+                 });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            if (taskInput.value.trim()) {
+                tasks.push({ text: taskInput.value, completed: false });
+                taskInput.value = '';
+                renderTasks();
+            }
+        }
+
+        function toggleTask(index) {
+            tasks[index].completed = !tasks[index].completed;
+            renderTasks();
+        }
+
+        function editTask(index) {
+            const newText = prompt('Edit Task:', tasks[index].text);
+            if (newText !== null) {
+                tasks[index].text = newText;
+                renderTasks();
+            }
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            renderTasks();
+        }
+
+        function markCompleted(index) {
+            tasks[index].completed = true;
+            renderTasks();
+        }
+
+        function filterTasks() {
+            renderTasks();
+        }
+
+        function showAll() {
+            document.getElementById('filter').value = 'all';
+            renderTasks();
+        }
+
+        function showCompleted() {
+            document.getElementById('filter').value = 'completed';
+            renderTasks();
+        }
+
+        function showPending() {
+            document.getElementById('filter').value = 'pending';
+            renderTasks();
+        }
+
+        renderTasks();
+    </script>
+</body>
+</html>

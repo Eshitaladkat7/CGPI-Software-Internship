@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Validation</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        form { width: 300px; margin: auto; }
+        input, button { width: 100%; padding: 8px; margin: 5px 0; }
+        .error { color: red; font-size: 12px; text-align: left; display: none; }
+        .success { color: green; font-weight: bold; display: none; }
+    </style>
+</head>
+<body>
+    <h2>Form Validation</h2>
+    <form id="form">
+        <input type="text" id="name" placeholder="Name">
+        <p class="error" id="nameError">Name is required</p>
+
+        <input type="email" id="email" placeholder="Email">
+        <p class="error" id="emailError">Invalid email format</p>
+
+        <input type="password" id="password" placeholder="Password">
+        <p class="error" id="passwordError">Password must be at least 6 characters</p>
+
+        <input type="password" id="confirmPassword" placeholder="Confirm Password">
+        <p class="error" id="confirmPasswordError">Passwords do not match</p>
+
+        <button type="submit" id="submitBtn" disabled>Submit</button>
+    </form>
+    <p class="success" id="successMessage">Form submitted successfully!</p>
+
+    <script>
+        const form = document.getElementById("form");
+        const name = document.getElementById("name");
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirmPassword");
+        const submitBtn = document.getElementById("submitBtn");
+        const successMessage = document.getElementById("successMessage");
+
+        function validate(showErrors = false) {
+            let valid = true;
+
+            // Name validation (required)
+            if (!name.value.trim()) {
+                if (showErrors) showError("nameError", "Name is required");
+                valid = false;
+            } else {
+                hideError("nameError");
+            }
+
+            // Email validation (must be valid)
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email.value.trim()) {
+                if (showErrors) showError("emailError", "Email is required");
+                valid = false;
+            } else if (!emailRegex.test(email.value.trim())) {
+                if (showErrors) showError("emailError", "Invalid email format");
+                valid = false;
+            } else {
+                hideError("emailError");
+            }
+
+            // Password validation (minimum 6 characters)
+            if (password.value.length < 6) {
+                if (showErrors) showError("passwordError", "Password must be at least 6 characters");
+                valid = false;
+            } else {
+                hideError("passwordError");
+            }
+
+            // Confirm Password validation (must match password)
+            if (confirmPassword.value !== password.value) {
+                if (showErrors) showError("confirmPasswordError", "Passwords do not match");
+                valid = false;
+            } else {
+                hideError("confirmPasswordError");
+            }
+
+            // Enable/Disable submit button
+            submitBtn.disabled = !valid;
+        }
+
+        function showError(id, message) {
+            const errorElement = document.getElementById(id);
+            errorElement.textContent = message;
+            errorElement.style.display = "block";
+        }
+
+        function hideError(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        // Validate on input (Shows errors when typing)
+        document.querySelectorAll("input").forEach(input => {
+            input.addEventListener("input", () => validate(true));
+        });
+
+        // Validate on form submit
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+            validate(true);
+            if (!submitBtn.disabled) {
+                successMessage.style.display = "block"; // Show success message
+                form.reset();
+                validate(false);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        #quiz-container { width: 300px; margin: auto; }
+        .question { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .option { display: block; padding: 10px; margin: 5px; border: 1px solid #ddd; cursor: pointer; }
+        .option:hover { background: #f0f0f0; }
+        .correct { background: lightgreen; }
+        .incorrect { background: lightcoral; }
+        #result { font-size: 20px; font-weight: bold; margin-top: 20px; display: none; }
+        #restart-btn { display: none; margin-top: 10px; padding: 10px; background: blue; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="quiz-container">
+        <p id="question" class="question"></p>
+        <div id="options"></div>
+        <p id="result"></p>
+        <button id="restart-btn" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "What is the capital of India?", options: ["Delhi", "Mumbai", "Bengaluru", "Hyderabad"], answer: "Delhi" },
+            { question: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Jupiter", "Saturn"], answer: "Mars" },
+            { question: "What is 5 + 3?", options: ["5", "8", "10", "15"], answer: "8" },
+            { question: "Who wrote 'Romeo and Juliet'?", options: ["Shakespeare", "Dickens", "Hemingway", "Tolkien"], answer: "Shakespeare" }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+
+        function loadQuestion() {
+            document.getElementById("result").style.display = "none";
+            document.getElementById("restart-btn").style.display = "none";
+            const questionData = quizData[currentQuestionIndex];
+            document.getElementById("question").textContent = questionData.question;
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+
+            questionData.options.forEach(option => {
+                const btn = document.createElement("button");
+                btn.textContent = option;
+                btn.classList.add("option");
+                btn.onclick = () => checkAnswer(option);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedAnswer) {
+            userAnswers.push(selectedAnswer);
+            const questionData = quizData[currentQuestionIndex];
+
+            if (selectedAnswer === questionData.answer) {
+                score++;
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById("question").textContent = "Quiz Completed!";
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+
+            quizData.forEach((question, index) => {
+                const resultItem = document.createElement("p");
+                resultItem.textContent = `Q: ${question.question} - Your Answer: ${userAnswers[index]} - Correct Answer: ${question.answer}`;
+                resultItem.classList.add(userAnswers[index] === question.answer ? "correct" : "incorrect");
+                optionsContainer.appendChild(resultItem);
+            });
+
+            document.getElementById("result").textContent = `Your score: ${score} / ${quizData.length}`;
+            document.getElementById("result").style.display = "block";
+            document.getElementById("restart-btn").style.display = "block";
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            loadQuestion();
+        }
+
+        loadQuestion();
+    </script>
+
+</body>
+</html>
